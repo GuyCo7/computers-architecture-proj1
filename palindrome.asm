@@ -124,9 +124,24 @@ string_to_array:
 #################################################
 	
 get_length:
-	lb $t0, newline
-	jr $ra
+	# $t0 = '\n', $a0 = base string (A)
+	# $t1 = A[i], $v0 = length_counter
+
+	lb $t0, newline # Load '\n' to $t0
+	add $v0, $zero, $zero # $v0 = 0 (length_counter)
 	
+loop:
+	lw $t1, 0($a0) # $t2 = A[i]
+	beq $t1, $t0, exit # if (A[i] != '\n')
+	addi $v0, $v0, 1 # $t1 += 1 (counter++)
+	addi $a0, $a0, 4 # $a0 += 4 (move to the next location of the array)
+	j loop
+	
+exit:
+	jr $ra # Jump back to the caller
+			
+					
+		
 is_pali_loop:
 	jr $ra
 	

@@ -61,46 +61,44 @@ fib:
 	# $a0 = n, $v0 = return_value
 	
 	# Check if n == 0
-	beq $a0, $0, ret_zero 
+	beq $a0, $0, return_zero 
 	
 	# Check if n == 1
 	addi $t0, $0, 1 # $t1 = 1
-	beq $a0, $t0, ret_one
+	beq $a0, $t0, return_one
 	
+	
+	addi $a0, $a0, -1 # $a0 = n-1
 	# else (n is not 0 or 1)
 	addi $sp, $sp, -12 # Allocate space on the stack
-	sw $ra, 0($sp) # save the retrun address in the stack
-	sw $a0, 4($sp) # save n in the stack
-	sw $v0, 8($sp) # save return value in the stack
-	
+	sw $ra, 8($sp) # save the retrun address in the stack
+	sw $v0, 4($sp) # save n in the stack
+	sw $a0, 0($sp) # save return value in the stack
 	# Compute fib(n-1)
-	addi $a0, $a0, -1 # $a0 = n-1
-	jal fib # call fib function with n-1
-	add $t1, $v0, $0 # $t1 = fib(n-1)
+	jal fib
+	sw $v0, 4($sp)
 	
-	# Restore stack
-	lw $v0, 8($sp) # Restore return value from the stack
-	lw $a0, 4($sp) # Restore n from the stack
-	lw $ra, 0($sp) # Restore return address from the stack
-	addi $sp, $sp, 12 # Restore stack pointer
+	lw $a0, 0($sp) # $a0 = n
+	addi $a0, $a0, -1 # $a0 = $a0 - 1
+	sw $a0, 0($sp)
 	
-	# Compute fib(n-2)
-	addi $a0, $a0, -2 # $a0 = n-2
-	jal fib # call fib with n-2
-	add $t2, $v0, $0 # $t2 = fib(n-2)
+	jal fib
 	
+	lw $t0, 4($sp)
+	add $v0, $v0, $t0 # $v0 = fib(n-1)
 	
-	add $v0, $t1, $t2 # $v0 = fib(n-1) + fib(n-2)
+	lw $ra, 8($sp)
+	addi $sp, $sp, 12
 	
-	j end
+	jr $ra
 	
-ret_zero:
+return_zero:
 	add $v0, $0, $0 # $v0 = 0
-	j end
+	jr $ra
 	
-ret_one:
+return_one:
 	addi $v0, $0, 1 # $v0 = 1
-	j end
+	jr $ra
 	
 end:	
 	# jump back to caller

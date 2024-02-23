@@ -61,55 +61,48 @@ fib:
 	# $a0 = n, $v0 = return_value
 	
 	# Check if n == 0
-	beq $a0, $0, return_zero 
+	beq $a0, $zero, return_zero
 	
 	# Check if n == 1
-	addi $t0, $0, 1 # $t1 = 1
+	addi $t0, $zero, 1 # $t1 = 1
 	beq $a0, $t0, return_one
 	
-	
+	# Else (n is not 0 or 1)
 	addi $a0, $a0, -1 # $a0 = n-1
 	addi $sp, $sp, -12 # Allocate space on the stack
-	sw $ra, 8($sp) # Save the retrun address in the stack
+	sw $ra, 8($sp) # Save the return address in the stack
 	sw $v0, 4($sp) # Save return value in the stack
-	sw $a0, 0($sp) # Save n in the stack
+	sw $a0, 0($sp) # Save n-1 in the stack
 	
-	
+	# Compute fib(n-1)
 	jal fib # Compute fib(n-1)
 	sw $v0, 4($sp) # Save return value in the stack
 	
-	lw $a0, 0($sp) # $a0 = n - 1
-	addi $a0, $a0, -1 # $a0 = $a0 - 1
+	lw $a0, 0($sp) # $a0 = n-1
+	addi $a0, $a0, -1 # $a0 = n-2
 	sw $a0, 0($sp) # Save n-2 in the stack
 	
-	
+	# Compute fib(n-2)
 	jal fib # Compute fib(n-2)
 	
-	lw $t0, 4($sp)
-	add $v0, $v0, $t0 # $v0 = fib(n-1)
+	lw $t0, 4($sp) # $t0 = fib(n-1)
+	add $v0, $v0, $t0 # $v0 = fib(n-2) + fib(n-1)
 	
 	lw $ra, 8($sp) # Load return address to the stack
 	addi $sp, $sp, 12 # Restore stack pointer
 	
-	jr $ra
+	j end
 	
 return_zero:
-	add $v0, $0, $0 # $v0 = 0
+	add $v0, $zero, $zero # $v0 = 0
 	j end
 	
 return_one:
-	addi $v0, $0, 1 # $v0 = 1
-	j end
+	addi $v0, $zero, 1 # $v0 = 1
 	
 end:	
-	# jump back to caller
-	jr $ra
+	jr $ra # jump back to caller
+
 	
-	
-	
-	
-	
-	
-	
-	
-	
+		
+			

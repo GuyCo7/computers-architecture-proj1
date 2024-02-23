@@ -143,7 +143,39 @@ exit:
 					
 		
 is_pali_loop:
+	# $a0 = string_length, $a1 = base_string
+	# $t0 = pointer to the end of the string
+	
+	add $t0, $zero, $zero # $t0 = 0
+	addi $t0, $t0, 4 # $t0 = 4
+	mul $t0, $t0, $a0 # $t0 *= string_length
+	addi $t0, $t0 , -4 # $t0 -= 4
+	
+loop_recursive:
+	lw $t1, 0($a1) # $t1 = A[start]
+	lw $t2, 0($t0) # $t2 = A[end]
+	bne $t1, $t2, not_pali # if A[start] != A[end]
+	
+	addi $a0, $a1, 4 # start++
+	addi $t0, $t0, -4 # end--
+	slt $t2, $a1, $t0 # $t2 = (start < end)
+	beq $t2, $zero, is_pali
+	j loop_recursive
+	
+
+not_pali:
+	add $v0, $zero, $zero # $v0 = 0 (means - not pali)
+	j end
+
+is_pali:
+	addi $v0, $zero, 1 # $v1 = 1 (means - pali)
+
+end:
 	jr $ra
 	
+
+
+
+
 is_pali_recursive:
 	jr $ra

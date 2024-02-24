@@ -146,20 +146,19 @@ is_pali_loop:
 	# $a0 = string_length, $a1 = base_string
 	# $t0 = pointer to the end of the string
 	
-	add $t0, $zero, $zero # $t0 = 0
-	addi $t0, $t0, 4 # $t0 = 4
-	mul $t0, $t0, $a0 # $t0 *= string_length
+	mul $t0, $a0, 4 # $t0 = string_length*4
 	addi $t0, $t0 , -4 # $t0 -= 4
+	add $t0, $t0, $a1 # $t0 = start + offset (now it points to the end of the string)
 	
 loop_recursive:
 	lw $t1, 0($a1) # $t1 = A[start]
 	lw $t2, 0($t0) # $t2 = A[end]
 	bne $t1, $t2, not_pali # if A[start] != A[end]
 	
-	addi $a0, $a1, 4 # start++
+	addi $a1, $a1, 4 # start++
 	addi $t0, $t0, -4 # end--
 	slt $t2, $a1, $t0 # $t2 = (start < end)
-	beq $t2, $zero, is_pali
+	beq $t2, $zero, is_pali # if (start >= end)
 	j loop_recursive
 	
 

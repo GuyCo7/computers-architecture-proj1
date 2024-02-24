@@ -172,9 +172,54 @@ is_pali:
 end:
 	jr $ra
 	
-
-
-
+	
+	
 
 is_pali_recursive:
+	# $a0 = string_length, $a1 = base_string
+	# $t0 = pointer to the end of the string
+	
+	# Save registers in the stack
+	addi $sp, $sp, -12 # Allocate stack memory
+	sw $ra, 8($sp) # Save return address in the stack
+	sw $a0, 4($sp) # Save string_length in the stack
+	sw $a1, 0($sp) # Save base_pointer in the stack
+	
+	addi $t4, $zero, 1 # $t4 = 1
+	ble $a0, $t4, is_pali_rec # if (string_length <= 1)
+	
+	# Calculate the end pointer
+	mul $t0, $a0, 4 # $t0 = string_length*4
+	add $t0, $a1, $t0 # $t0 = start + offset
+	addi $t0, $t0 , -4 # $t0 -= 4
+	
+	#slt $t3, $a1, $t0 # $t3 = (start < end)
+	#beq $t3, $zero, is_pali_rec # if (start >= end)
+	
+	lw $t1, 0($a1) # $t1 = A[start]
+	lw $t2, 0($t0) # $t2 = A[end]
+	bne $t1, $t2, not_pali_rec # if A[start] != A[end]
+	
+	addi $a1, $a1, 4 # start++
+	addi $t0, $t0, -4 # end--
+	addi $a0 $a0, -2 # string_length -= 2
+	
+	jal is_pali_recursive
+	
+	# Restore registers from the stack
+	lw $a1, 0($sp) # Restore base_pointer from the stack
+	lw $a0, 4($sp) # Restore string_length from the stack
+	lw $ra, 8($sp) # Restore return address from the stack
+	addi $sp, $sp, 12 # Restore stack pointer
+	
+	jr $ra
+
+not_pali_rec:
+	add $v0, $zero, $zero # $v0 = 0 (means - not pali)
+	j end_rec
+	
+is_pali_rec:
+	addi $v0, $zero, 1 # $v0 = 1 (means - is pali)
+
+end_rec:	
 	jr $ra
